@@ -128,24 +128,25 @@ function Button({ setIsOpen1, isOpen1 }) {
 }
 
 function Condition({ movies, isOpen1 }) {
+  return <>{isOpen1 && <Mlist movies={movies} />}</>;
+}
+function Mlist({ movies }) {
   return (
     <>
-      {isOpen1 && (
-        <ul className="list">
-          {movies?.map((movie) => (
-            <li key={movie.imdbID}>
-              <img src={movie.Poster} alt={`${movie.Title} poster`} />
-              <h3>{movie.Title}</h3>
-              <div>
-                <p>
-                  <span>🗓</span>
-                  <span>{movie.Year}</span>
-                </p>
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
+      <ul className="list">
+        {movies?.map((movie) => (
+          <li key={movie.imdbID}>
+            <img src={movie.Poster} alt={`${movie.Title} poster`} />
+            <h3>{movie.Title}</h3>
+            <div>
+              <p>
+                <span>🗓</span>
+                <span>{movie.Year}</span>
+              </p>
+            </div>
+          </li>
+        ))}
+      </ul>
     </>
   );
 }
