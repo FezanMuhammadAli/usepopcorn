@@ -54,142 +54,142 @@ export default function App() {
   const [movies, setMovies] = useState(tempMovieData);
   return (
     <>
-      <Nav movies={movies} />
-      <MainBlock movies={movies} />
+      <NavBar movies={movies} />
+      <Main movies={movies} />
     </>
   );
 }
 
-function Nav({ movies }) {
+function NavBar({ movies }) {
   return (
-    <nav className="nav-bar">
-      <Logo />
-      <Input />
-      <Results movies={movies} />
-    </nav>
+    <>
+      <nav className="nav-bar">
+        <Logo />
+        <Search />
+        <NumResults movies={movies} />
+      </nav>
+    </>
   );
 }
 
-function Input() {
+function Search() {
   const [query, setQuery] = useState("");
   return (
-    <input
-      className="search"
-      type="text"
-      placeholder="Search movies..."
-      value={query}
-      onChange={(e) => setQuery(e.target.value)}
-    />
+    <>
+      <input
+        className="search"
+        type="text"
+        placeholder="Search movies..."
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+      />
+    </>
   );
 }
 
 function Logo() {
   return (
-    <div className="logo">
-      <span role="img">🍿</span>
-      <h1>usePopcorn</h1>
-    </div>
+    <>
+      <div className="logo">
+        <span role="img">🍿</span>
+        <h1>usePopcorn</h1>
+      </div>
+    </>
   );
 }
 
-function Results({ movies }) {
+function NumResults({ movies }) {
   return (
-    <p className="num-results">
-      Found <strong>{movies.length}</strong> results
-    </p>
+    <>
+      <p className="num-results">
+        Found <strong>{movies.length}</strong> results
+      </p>
+    </>
   );
 }
 
-function MainBlock({ movies }) {
+function Main({ movies }) {
   return (
-    <main className="main">
-      <BoxLeft movies={movies} />
-      <BoxRight />
-    </main>
+    <>
+      <main className="main">
+        <ListBox movies={movies} />
+        <WatchedBox />
+      </main>
+    </>
   );
 }
 
-function BoxLeft({ movies }) {
+function ListBox({ movies }) {
   const [isOpen1, setIsOpen1] = useState(true);
   return (
-    <div className="box">
-      <Button isOpen1={isOpen1} setIsOpen1={setIsOpen1} />
-      <Condition isOpen1={isOpen1} movies={movies} />
-    </div>
+    <>
+      <div className="box">
+        <button
+          className="btn-toggle"
+          onClick={() => setIsOpen1((open) => !open)}
+        >
+          {isOpen1 ? "–" : "+"}
+        </button>
+        {isOpen1 && <MovieList movies={movies} />}
+      </div>
+    </>
   );
 }
 
-function Button({ setIsOpen1, isOpen1 }) {
-  return (
-    <button className="btn-toggle" onClick={() => setIsOpen1((open) => !open)}>
-      {isOpen1 ? "–" : "+"}
-    </button>
-  );
-}
-
-function Condition({ movies, isOpen1 }) {
-  return <>{isOpen1 && <Mlist movies={movies} />}</>;
-}
-function Mlist({ movies }) {
+function MovieList({ movies }) {
   return (
     <>
       <ul className="list">
         {movies?.map((movie) => (
-          <li key={movie.imdbID}>
-            <img src={movie.Poster} alt={`${movie.Title} poster`} />
-            <h3>{movie.Title}</h3>
-            <div>
-              <p>
-                <span>🗓</span>
-                <span>{movie.Year}</span>
-              </p>
-            </div>
-          </li>
+          <Movie movie={movie} key={movie.imdbID} />
         ))}
       </ul>
     </>
   );
 }
 
-function BoxRight() {
+function Movie({ movie }) {
+  return (
+    <>
+      <li>
+        <img src={movie.Poster} alt={`${movie.Title} poster`} />
+        <h3>{movie.Title}</h3>
+        <div>
+          <p>
+            <span>🗓</span>
+            <span>{movie.Year}</span>
+          </p>
+        </div>
+      </li>
+    </>
+  );
+}
+
+function WatchedBox() {
+  const [watched, setWatched] = useState(tempWatchedData);
   const [isOpen2, setIsOpen2] = useState(true);
 
   return (
-    <div className="box">
-      <Button2 setIsOpen2={setIsOpen2} isOpen2={isOpen2} />
-      <Condition2 isOpen2={isOpen2} />
-    </div>
-  );
-}
-
-function Button2({ setIsOpen2, isOpen2 }) {
-  return (
     <>
-      <button
-        className="btn-toggle"
-        onClick={() => setIsOpen2((open) => !open)}
-      >
-        {isOpen2 ? "–" : "+"}
-      </button>
+      <div className="box">
+        <button
+          className="btn-toggle"
+          onClick={() => setIsOpen2((open) => !open)}
+        >
+          {isOpen2 ? "–" : "+"}
+        </button>
+        {isOpen2 && (
+          <>
+            <WatchedSummary watched={watched} />
+            <WatcedMovieList watched={watched} />
+          </>
+        )}
+      </div>
     </>
   );
 }
 
-function Condition2({ isOpen2 }) {
-  const [watched, setWatched] = useState(tempWatchedData);
-  return (
-    <>
-      {isOpen2 && (
-        <>
-          <Summary watched={watched} />
-          <List watched={watched} />
-        </>
-      )}
-    </>
-  );
-}
-
-function Summary({ watched }) {
+function WatchedSummary({ watched }) {
   const avgImdbRating = average(watched.map((movie) => movie.imdbRating));
   const avgUserRating = average(watched.map((movie) => movie.userRating));
   const avgRuntime = average(watched.map((movie) => movie.runtime));
@@ -218,43 +218,37 @@ function Summary({ watched }) {
   );
 }
 
-function List({ watched }) {
+function WatcedMovieList({ watched }) {
   return (
     <ul className="list">
       {watched.map((movie) => (
-        <li key={movie.imdbID}>
-          <Movie movie={movie} />
-          <Fun movie={movie} />
-        </li>
+        <WatchedMovie movie={movie} />
       ))}
     </ul>
   );
 }
 
-function Movie({ movie }) {
+function WatchedMovie({ movie }) {
   return (
     <>
-      <img src={movie.Poster} alt={`${movie.Title} poster`} />
-      <h3>{movie.Title}</h3>
+      <li key={movie.imdbID}>
+        <img src={movie.Poster} alt={`${movie.Title} poster`} />
+        <h3>{movie.Title}</h3>
+        <div>
+          <p>
+            <span>⭐️</span>
+            <span>{movie.imdbRating}</span>
+          </p>
+          <p>
+            <span>🌟</span>
+            <span>{movie.userRating}</span>
+          </p>
+          <p>
+            <span>⏳</span>
+            <span>{movie.runtime} min</span>
+          </p>
+        </div>
+      </li>
     </>
-  );
-}
-
-function Fun({ movie }) {
-  return (
-    <div>
-      <p>
-        <span>⭐️</span>
-        <span>{movie.imdbRating}</span>
-      </p>
-      <p>
-        <span>🌟</span>
-        <span>{movie.userRating}</span>
-      </p>
-      <p>
-        <span>⏳</span>
-        <span>{movie.runtime} min</span>
-      </p>
-    </div>
   );
 }
