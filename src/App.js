@@ -52,40 +52,52 @@ const average = (arr) =>
 
 const KEY = "950d0f5c";
 export default function App() {
+  const tempQuery = "interstellar";
+  const [query, setQuery] = useState(tempQuery);
   const [movies, setMovies] = useState([]);
   const [watched, setWatched] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const query = "interklsdfhstellar";
-  useEffect(function () {
-    async function fetchMovies() {
-      try {
-        setIsLoading(true);
-        const res = await fetch(
-          `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`
-        );
-        if (!res.ok) throw new Error("Something went wrong!");
-        const data = await res.json();
 
-        if (data.Response === "False") throw new Error("Movie Not Found 😩");
+  useEffect(
+    function () {
+      async function fetchMovies() {
+        try {
+          setIsLoading(true);
+          setError("");
+          const res = await fetch(
+            `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`
+          );
+          if (!res.ok) throw new Error("Something went wrong!");
+          const data = await res.json();
 
-        setMovies(data.Search);
-        console.log(data.Error);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setIsLoading(false);
+          if (data.Response === "False") throw new Error("Movie Not Found 😩");
+
+          setMovies(data.Search);
+        } catch (err) {
+          setError(err.message);
+        } finally {
+          setIsLoading(false);
+        }
       }
-    }
-    fetchMovies();
-  }, []);
+
+      if (query.length < 3) {
+        console.log("hello");
+        setMovies([]);
+        setError("");
+        return;
+      }
+      fetchMovies();
+    },
+    [query]
+  );
 
   // setWatched([]);
   return (
     <>
       <NavBar>
         <Logo />
-        <Search />
+        <Search query={query} setQuery={setQuery} />
         <NumResults movies={movies} />
       </NavBar>
 
@@ -140,8 +152,7 @@ function NavBar({ children }) {
   );
 }
 
-function Search() {
-  const [query, setQuery] = useState("");
+function Search({ query, setQuery }) {
   return (
     <>
       <input
