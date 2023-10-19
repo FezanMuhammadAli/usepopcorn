@@ -1,23 +1,23 @@
 import React, { useState } from "react";
 import ReactDOM from "react-dom/client";
-// import "./index.css";
-// import App from "./App";
-import StarRating from "./StarRating";
+import "./index.css";
+import App from "./App";
+// import StarRating from "./StarRating";
 
-function Test() {
-  const [movieRating, setMoviesRating] = useState(0);
-  return (
-    <div>
-      <StarRating maxrating={5} color="blue" onSetRating={setMoviesRating} />
-      <p>This Movies Has Been Rated {movieRating} Stars</p>
-    </div>
-  );
-}
+// function Test() {
+//   const [movieRating, setMoviesRating] = useState(0);
+//   return (
+//     <div>
+//       <StarRating maxrating={5} color="blue" onSetRating={setMoviesRating} />
+//       <p>This Movies Has Been Rated {movieRating} Stars</p>
+//     </div>
+//   );
+// }
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
-    <StarRating maxrating={10} />
+    {/* <StarRating maxrating={10} />
     <StarRating size={24} color="blue" defaultRating={4} />
     <StarRating
       color="orange"
@@ -27,6 +27,7 @@ root.render(
       defaultRating={4}
     />
 
-    <Test />
+    <Test /> */}
+    <App />
   </React.StrictMode>
 );
