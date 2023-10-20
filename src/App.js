@@ -133,6 +133,7 @@ export default function App() {
                 selectedId={selectedId}
                 onCloseMovie={handleCloseMovie}
                 onAddWatched={handleAddWatch}
+                watched={watched}
               />
             ) : (
               <>
@@ -289,10 +290,10 @@ function Movie({ movie, onSelectMovie }) {
 //   );
 // }
 
-function MovieDetails({ selectedId, onCloseMovie, onAddWatched }) {
+function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
   const [movie, setMovie] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-  const [userRating, setUserRating] = useState("");
+  const [userRating, setUserRating] = useState(0);
   const {
     Title: title,
     Year: year,
@@ -314,7 +315,7 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched }) {
       poster,
       imdbRating: Number(imdbRating),
       runtime: Number(runtime.split(" ").at(0)),
-      userRating: Number(userRating),
+      userRating,
     };
     onAddWatched(newWatchedMovie);
     onCloseMovie();
@@ -330,7 +331,7 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched }) {
         const data = await res.json();
         setMovie(data);
         setIsLoading(false);
-        // console.log(data);
+        // console.log(watched);
       }
       getMovieDetail();
     },
@@ -344,6 +345,7 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched }) {
         <>
           <header>
             <button className="btn-back" onClick={onCloseMovie}>
+              {console.log(userRating)}
               &larr;
             </button>
             <img src={poster} alt={`Poster of${title}`} />
@@ -360,7 +362,15 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched }) {
             </div>
           </header>
           <div className="rating">
-            <StarRating maxrating={10} size={24} onSetRating={setUserRating} />
+            {watched.find((w) => w.imdbID === movie.imdbID) ? (
+              <Random />
+            ) : (
+              <StarRating
+                maxrating={10}
+                size={24}
+                onSetRating={setUserRating}
+              />
+            )}
 
             {userRating > 0 && (
               <button className="btn-add" onClick={handleAdd}>
@@ -383,9 +393,18 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched }) {
   );
 }
 
+function Random() {
+  return <p>HELLO</p>;
+}
+
 function WatchedSummary({ watched }) {
-  const avgImdbRating = average(watched.map((movie) => movie.imdbRating));
-  const avgUserRating = average(watched.map((movie) => movie.userRating));
+  const avgImdbRating = average(
+    watched.map((movie) => movie.imdbRating)
+  ).toFixed(1);
+
+  const avgUserRating = average(
+    watched.map((movie) => movie.userRating)
+  ).toFixed(1);
   const avgRuntime = average(watched.map((movie) => movie.runtime));
   return (
     <div className="summary">
