@@ -52,7 +52,7 @@ const average = (arr) =>
 
 const KEY = "950d0f5c";
 export default function App() {
-  const tempQuery = "interstellar";
+  const tempQuery = "";
   const [query, setQuery] = useState(tempQuery);
   const [movies, setMovies] = useState([]);
   const [watched, setWatched] = useState([]);
@@ -74,14 +74,18 @@ export default function App() {
   function handleDeleteMovie(id) {
     setWatched((watched) => watched.filter((movie) => movie.imdbID !== id));
   }
+
   useEffect(
     function () {
+      const controller = new AbortController();
+
       async function fetchMovies() {
         try {
           setIsLoading(true);
           setError("");
           const res = await fetch(
-            `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`
+            `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`,
+            { signal: controller.signal }
           );
           if (!res.ok) throw new Error("Something went wrong!");
           const data = await res.json();
@@ -89,8 +93,11 @@ export default function App() {
           if (data.Response === "False") throw new Error("Movie Not Found 😩");
 
           setMovies(data.Search);
+          setError("");
         } catch (err) {
-          setError(err.message);
+          if (err.name !== "AbortError") {
+            setError(err.message);
+          }
         } finally {
           setIsLoading(false);
         }
@@ -101,12 +108,16 @@ export default function App() {
         setError("");
         return;
       }
+      handleCloseMovie();
       fetchMovies();
+
+      return function () {
+        controller.abort(); // cleanup
+      };
     },
     [query]
   );
 
-  // setWatched([]);
   return (
     <>
       <NavBar>
@@ -328,6 +339,20 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
     onAddWatched(newWatchedMovie);
     onCloseMovie();
   }
+  function callBack(e) {
+    if (e.code === "Escape") {
+      onCloseMovie();
+    }
+  }
+  useEffect(
+    function () {
+      document.addEventListener("keydown", callBack);
+      return function () {
+        document.removeEventListener("keydown", callBack);
+      };
+    },
+    [onCloseMovie]
+  );
 
   useEffect(
     function () {
@@ -339,12 +364,24 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
         const data = await res.json();
         setMovie(data);
         setIsLoading(false);
-        // console.log(watched);
       }
       getMovieDetail();
     },
     [selectedId]
   );
+
+  useEffect(
+    function () {
+      if (!movie.Title) return;
+      document.title = `Movie| ${movie.Title}` || "usePopcorn";
+      // Here we are using cleanup function to solve the page title issue
+      return function () {
+        document.title = "usePopcorn";
+      };
+    },
+    [movie.Title]
+  );
+
   return (
     <div className="details">
       {isLoading ? (
@@ -353,7 +390,6 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
         <>
           <header>
             <button className="btn-back" onClick={onCloseMovie}>
-              {console.log(userRating)}
               &larr;
             </button>
             <img src={poster} alt={`Poster of${title}`} />
