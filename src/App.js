@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import StarRating from "./StarRating";
 import { useMovie } from "./useMovie";
 import { useLocalStorageState } from "./useLocalStorageState";
+import { useKey } from "./useKey";
+
 const tempMovieData = [
   {
     imdbID: "tt1375666",
@@ -58,11 +60,6 @@ export default function App() {
   const [query, setQuery] = useState(tempQuery);
 
   const [selectedId, setSelectedId] = useState(null);
-  // const [watched, setWatched] = useState([]);
-  // const [watched, setWatched] = useState(function () {
-  //   const storeValue = localStorage.getItem("watchedd");
-  //   return JSON.parse(storeValue);
-  // });
 
   const { movies, isLoading, error } = useMovie(query);
   const [watched, setWatched] = useLocalStorageState([], "watched");
@@ -76,8 +73,6 @@ export default function App() {
 
   function handleAddWatch(movie) {
     setWatched((watched) => [...watched, movie]);
-
-    // localStorage.setItem("watched", JSON.stringify([...watched, movie]));
   }
 
   function handleDeleteMovie(id) {
@@ -93,7 +88,6 @@ export default function App() {
       </NavBar>
 
       <Main>
-        {/* <Box element={isLoading ? <Loader /> : <MovieList movies={movies} />} /> */}
         <Box
           element={
             <>
@@ -127,11 +121,6 @@ export default function App() {
             )
           }
         />
-        {/* <WatchedBox /> */}
-        {/* <Box>
-          <WatchedSummary watched={watched} />
-          <WatcedMovieList watched={watched} />
-        </Box> */}
       </Main>
     </>
   );
@@ -159,24 +148,13 @@ function NavBar({ children }) {
 
 function Search({ query, setQuery }) {
   const inputEl = useRef(null);
-  useEffect(
-    function () {
-      function callBack(e) {
-        if (document.activeElement === inputEl.current) return;
-        if (e.code === "Enter") {
-          inputEl.current.focus();
-          setQuery("");
-        }
-      }
-      document.addEventListener("keydown", callBack);
-      return () => document.addEventListener("keydown", callBack);
-    },
-    [setQuery]
-  );
-  // useEffect(function () {
-  //   const el = document.querySelector(".search");
-  //   el.focus();
-  // }, []);
+
+  useKey("Enter", function () {
+    if (document.activeElement === inputEl.current) return;
+    inputEl.current.focus();
+    setQuery("");
+  });
+
   return (
     <>
       <input
@@ -270,30 +248,6 @@ function Movie({ movie, onSelectMovie }) {
   );
 }
 
-// function WatchedBox() {
-//   const [watched, setWatched] = useState(tempWatchedData);
-//   const [isOpen2, setIsOpen2] = useState(true);
-
-//   return (
-//     <>
-//       <div className="box">
-//         <button
-//           className="btn-toggle"
-//           onClick={() => setIsOpen2((open) => !open)}
-//         >
-//           {isOpen2 ? "–" : "+"}
-//         </button>
-//         {isOpen2 && (
-//           <>
-//             <WatchedSummary watched={watched} />
-//             <WatcedMovieList watched={watched} />
-//           </>
-//         )}
-//       </div>
-//     </>
-//   );
-// }
-
 function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
   const [movie, setMovie] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -331,11 +285,12 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
       imdbRating: Number(imdbRating),
       runtime: Number(runtime.split(" ").at(0)),
       userRating,
-      // countRatingDecision: countRef.current,
     };
     onAddWatched(newWatchedMovie);
     onCloseMovie();
   }
+
+  useKey("Escape", onCloseMovie);
 
   useEffect(
     function () {
@@ -414,8 +369,6 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
           </section>
         </>
       )}
-
-      {/* {selectedId} */}
     </div>
   );
 }
